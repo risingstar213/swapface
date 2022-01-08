@@ -1,5 +1,6 @@
 import cv2
-import numpy as np
+import os
+import dlib
 def is_inside(o, i):
     ox, oy, ow, oh = o
     ix, iy, iw, ih = i
@@ -7,11 +8,11 @@ def is_inside(o, i):
         return True
     else:
         return False  
-def detect_face(file_name):
+def detect_people(file_name):
     img = cv2.imread(file_name)
 
-    hog = cv2.HOGDescriptor() #定义描述子
-    detector = cv2.HOGDescriptor_getDefaultPeopleDetector()
+    hog = cv2.HOGDescriptor() #定义描述子分类器
+    detector = cv2.HOGDescriptor_getDefaultPeopleDetector() 
     
     hog.setSVMDetector(detector)
      #多尺度检测，found是一个数组，每一个元素都是对应一个矩形，即检测到的目标框
@@ -37,5 +38,17 @@ def detect_face(file_name):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def detect_face(file_name):
+    img = cv2.imread(file_name)
+    detector = dlib.get_frontal_face_detector()
+    dets = detector(img, 1)
+    #print(len(dets))
+    for index, face in enumerate(dets):
+        left = face.left()
+        right = face.right()
+        top = face.top()
+        bottom = face.bottom()
+        extract_img = img[top:bottom + 1, left:right + 1, :]
+        cv2.imwrite(os.path.join('img\\extract', str(index) + '.jpg'), extract_img)
 if __name__ == '__main__':
     detect_face('img\\test\\000076.jpg')
