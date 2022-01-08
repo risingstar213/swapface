@@ -41,7 +41,7 @@ def detect_people(file_name):
 def detect_face(file_name):
     img = cv2.imread(file_name)
     detector = dlib.get_frontal_face_detector()
-    dets = detector(img, 1)
+    dets = detector(img, 0)
     #print(len(dets))
     for index, face in enumerate(dets):
         left = face.left()
