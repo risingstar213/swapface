@@ -1,6 +1,5 @@
 import dlib
 import cv2
-import os
 import numpy as np
 from detection import detect_face
 

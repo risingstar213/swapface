@@ -1,7 +1,7 @@
-import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.backend import set_image_data_format, image_data_format
-import tensorflow.keras.backend as K  
+import tensorflow.keras.backend as K
+
 class PixelShuffler(Layer):
     def __init__(self, size = (2, 2), data_format = None, **kwargs):
         super().__init__(kwargs)
