@@ -13,11 +13,13 @@ class PixelShuffler(Layer):
         self.size = tuple(size)
     def call(self, inputs):
         input_shape = inputs.shape.as_list()
-        if len(input_shape) != 4:
-            raise ValueError('Inputa should have 4 demensions')
+        if len(input_shape) != 4 and len(input_shape) != 3:
+            raise ValueError('Inputs should have 4 or 3 demensions, len = ' + str(len(input_shape)))
         
         if self.data_format == 'channels_first':
             batch_size, c, w, h = input_shape
+            if batch_size is None:
+                batch_size = -1
             rh, rw = self.size
             oh, ow = h * rh, w * rw
             oc = c // (rh * rw)
@@ -27,6 +29,8 @@ class PixelShuffler(Layer):
             out = K.reshape(out, (batch_size, oc, oh, ow))
         elif self.data_format == 'channels_last':
             batch_size, w, h, c= input_shape
+            if batch_size is None:
+                batch_size = -1
             rh, rw = self.size
             oh, ow = h * rh, w * rw
             oc = c // (rh * rw)
@@ -38,9 +42,8 @@ class PixelShuffler(Layer):
         return out
 
     def compute_output_shape(self, input_shape):
-        if len(input_shape) != 4:
-            raise ValueError('Inputs should have 4 demensions')
-        
+        if len(input_shape) != 4 and len(input_shape) != 3:
+            raise ValueError('Inputs should have 4 or 3 demensions, len = ' + str(len(input_shape)))
         if self.data_format == 'channels_first':
             batch_size, c, w, h = input_shape
             rh, rw = self.size
@@ -48,7 +51,7 @@ class PixelShuffler(Layer):
             oc = c // (rh * rw)
             if oc * rh * rw != c:
                 raise ValueError('Cannot resize the image to correspoding size.')
-            return (batch_size, oc, oh, ow)
+            return (batch_size, oc, oh, ow) if batch_size is not None else (oc, oh, ow)
         elif self.data_format == 'channels_last':
             batch_size, w, h, c= input_shape
             rh, rw = self.size
@@ -56,7 +59,7 @@ class PixelShuffler(Layer):
             oc = c // (rh * rw)
             if oc * rh * rw != c:
                 raise ValueError('Cannot resize the image to correspoding size.')
-            return (batch_size, oh, ow, oc)
+            return (batch_size, oc, oh, ow) if batch_size is not None else (oc, oh, ow)
         
         raise ValueError('Unknown error in PixelShuffler.')
     

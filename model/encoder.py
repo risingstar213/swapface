@@ -39,7 +39,7 @@ class ConvertModel:
         self.decoder_B.save_weights(str(self.model_dir / decoder_BH5))
         print('saved model weights')
     def initModel(self):
-        optimizer = Adam(lr = 5e-5, beta_1 = 0.5, beta_2 = 0.99)
+        optimizer = Adam(learning_rate= 5e-5, beta_1 = 0.5, beta_2 = 0.99)
         x = Input(shape =   IMAGE_SHAPE)
 
         output_A = self.decoder_A(self.encoder(x))
@@ -64,7 +64,7 @@ class ConvertModel:
     # 上采样模块,闭包便于函数式编程
     def upscale(self, filters):
         def upscale_block(x):
-            x = Conv2D(filters * 4, knernel_size = 3, padding = 'same')
+            x = Conv2D(filters * 4, kernel_size = 3, padding = 'same')(x)
             x = LeakyReLU(0.1)(x) 
             x = PixelShuffler()(x)
             return x
@@ -80,7 +80,7 @@ class ConvertModel:
 
         x = Dense(ENCOSER_DIM)(Flatten()(x))
         x = Dense(4 * 4 * 1024)(x)
-        x = Reshape((-1, 4, 4, 1024))(x)
+        x = Reshape((4, 4, 1024))(x)
         x = self.upscale(512)(x)
 
         return Model(inputs = [input], outputs = [x])
@@ -93,3 +93,5 @@ class ConvertModel:
         x = self.upscale(64)(x)
         x = Conv2D(3, kernel_size = 5, padding='same', activation = 'sigmoid')(x)
         return Model(inputs = [input], outputs = [x])
+
+
